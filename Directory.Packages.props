@@ -1,0 +1,14 @@
+<Project>
+  <ItemGroup>
+    <PackageVersion Include="Basic.Reference.Assemblies.Net100" Version="1.8.11" />
+    <!-- The lowest Roslyn a consumer needs. Projects which want a newer one use VersionOverride. -->
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.302" />
+    <PackageVersion Include="Nerdbank.GitVersioning" Version="3.10.94" />
+    <PackageVersion Include="PolySharp" Version="1.16.0" />
+    <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
+    <PackageVersion Include="TUnit" Version="1.67.0" />
+    <!-- 33.0 adds a SponsorCheck licence gate; the version line sync-method-generator uses predates it. -->
+    <PackageVersion Include="Verify.TUnit" Version="31.12.5" />
+  </ItemGroup>
+</Project>

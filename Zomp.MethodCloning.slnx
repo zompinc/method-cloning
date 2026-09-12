@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Zomp.MethodCloning/Zomp.MethodCloning.csproj" />
+    <Project Path="src/Zomp.MethodCloning.Variants/Zomp.MethodCloning.Variants.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Zomp.MethodCloning.Tests/Zomp.MethodCloning.Tests.csproj" />
+  </Folder>
+</Solution>

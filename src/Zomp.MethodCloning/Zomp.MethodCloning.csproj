@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Building blocks for Roslyn source generators which copy a method into a file of its own and transform it. Ships as source, compiled into the generator which references it.</Description>
+    <PackageTags>roslyn source-generator cloning</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IsPackable>true</IsPackable>
+    <DevelopmentDependency>true</DevelopmentDependency>
+
+    <!-- A source package: the .cs files are the package, compiled into each consumer. -->
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+
+    <!-- The files stand alone in the consumer, so they declare their own usings. -->
+    <ImplicitUsings>disable</ImplicitUsings>
+
+    <!-- The newest branch of every #if ROSLYN_* guard compiles here; the Variants generator compiles the oldest. -->
+    <DefineConstants>$(DefineConstants);ROSLYN_4_8_OR_GREATER;ROSLYN_4_12_OR_GREATER;ROSLYN_5_0_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="5.0.0" PrivateAssets="all" />
+    <PackageReference Include="PolySharp" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="**\*.cs" Pack="true" PackagePath="contentFiles\cs\any\Zomp.MethodCloning\" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

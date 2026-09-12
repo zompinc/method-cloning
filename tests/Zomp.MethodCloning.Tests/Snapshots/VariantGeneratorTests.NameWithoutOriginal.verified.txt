@@ -1,0 +1,1 @@
+﻿// ZMC002 Error: Cannot write variants of 'Save'. Its name has to contain the word they replace, or every variant would be named like the original.
