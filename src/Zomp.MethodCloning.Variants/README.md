@@ -25,11 +25,14 @@ generates `SaveAsGif`, taking a `GifEncoder` and using `GifFormat.Instance`, and
   `Formats.Gif.GifEncoder`);
 - in every static member it calls, such as another overload (`SaveAsBmp` becomes
   `SaveAsGif`);
-- in its documentation.
+- in its documentation;
+- in the using directives of the file the variant is written to, when the
+  namespace they would then name exists.
 
 Applied to a partial type, the attribute marks every method in that declaration
 of the type. Each variant keeps the nullable context of the method it is written
-from.
+from, and goes to a file named after that method and the variant, such as
+`ImageExtensions.SaveAsBmp.Gif.g.cs`.
 
 ## Diagnostics
 

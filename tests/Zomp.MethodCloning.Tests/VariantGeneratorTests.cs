@@ -217,4 +217,57 @@ namespace Img
     }
 }
 """);
+
+    // Methods written for different variants both produce a Png one, which must not share a file.
+    [Test]
+    public Task OverlappingVariants() => TestHelper.Verify($$"""
+{{FormatTypes}}
+
+namespace Img
+{
+    public sealed class ImageMetadata { }
+
+    public sealed class FrameMetadata { }
+
+    public static partial class MetadataExtensions
+    {
+        [Zomp.MethodCloning.CloneVariants("Bmp", "Png")]
+        public static string GetBmpMetadata(this ImageMetadata source) => nameof(Img.Formats.Bmp.BmpFormat);
+
+        [Zomp.MethodCloning.CloneVariants("Gif", "Png")]
+        public static string GetGifMetadata(this FrameMetadata source) => nameof(Img.Formats.Gif.GifFormat);
+    }
+}
+""");
+
+    // The return type names the format, and so does the using directive the documentation relies on.
+    [Test]
+    public Task ReturnTypeAndUsings() => TestHelper.Verify($$"""
+{{FormatTypes}}
+
+namespace Img.Formats.Bmp
+{
+    public sealed class BmpMetadata { }
+}
+
+namespace Img.Formats.Gif
+{
+    public sealed class GifMetadata { }
+}
+
+namespace Img
+{
+    using Img.Formats.Bmp;
+
+    public static partial class MetadataExtensions
+    {
+        /// <summary>
+        /// Gets the <see cref="BmpMetadata"/> of the image.
+        /// </summary>
+        /// <returns>The <see cref="BmpMetadata"/>.</returns>
+        [Zomp.MethodCloning.CloneVariants("Bmp", "Gif")]
+        public static BmpMetadata GetBmpMetadata(this Image source) => new BmpMetadata();
+    }
+}
+""");
 }

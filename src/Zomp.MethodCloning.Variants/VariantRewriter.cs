@@ -49,8 +49,15 @@ internal sealed class VariantRewriter(SemanticModel semanticModel, MethodDeclara
 
         var name = SyntaxFactory.Identifier(Rename(node.Identifier.ValueText, original, variant)).WithTriviaFrom(clone.Identifier);
 
+        // The base qualifies a return type written as a generic, nullable or qualified name, but
+        // leaves one written as a simple name, which may name the variant, as it is.
+        var returnType = node.ReturnType is IdentifierNameSyntax
+            ? ProcessType(node.ReturnType).WithTriviaFrom(clone.ReturnType)
+            : clone.ReturnType;
+
         return clone
             .WithIdentifier(name)
+            .WithReturnType(returnType)
             .WithLeadingTrivia(RemovePreprocessorDirectives(documentation));
     }
 

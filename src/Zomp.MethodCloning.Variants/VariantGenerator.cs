@@ -114,11 +114,82 @@ namespace Zomp.MethodCloning
             var rewriter = new VariantRewriter(context.SemanticModel, syntax, original, to);
             var rewritten = rewriter.Visit(root);
 
-            // Every variant is a copy of the same method, so each file is named after the variant
-            // rather than after the original, which would give all of them the same file.
-            clones.Add(ClonedMethod.Create(location, syntax, rewritten, disableNullable, rewriter.Diagnostics, VariantRewriter.Rename(name, original, to)));
+            var compilation = context.SemanticModel.Compilation;
+            var variantLocation = location with
+            {
+                OuterUsings = RenameUsings(location.OuterUsings, original, to, compilation),
+                InnerUsings = RenameUsings(location.InnerUsings, original, to, compilation),
+            };
+
+            // Each file is named after the method and the variant. The variant's name alone would
+            // not do: methods written for different variants, such as GetBmpMetadata and an
+            // overload GetGifMetadata, can both produce a GetPngMetadata.
+            clones.Add(ClonedMethod.Create(variantLocation, syntax, rewritten, disableNullable, rewriter.Diagnostics, $"{name}.{to}"));
         }
 
         return clones.ToImmutable();
+    }
+
+    /// <summary>
+    /// Swaps the word in the using directives of the file a variant is emitted to, so that
+    /// <c>using Formats.Bmp;</c> becomes <c>using Formats.Gif;</c> and the references the
+    /// documentation makes by simple name resolve. A directive is swapped only when the namespace
+    /// it would name exists; aliases and static directives are kept as they are.
+    /// </summary>
+    /// <param name="usings">The directives of the original file.</param>
+    /// <param name="original">The word naming the variant the method was written for.</param>
+    /// <param name="variant">The word naming the variant to write.</param>
+    /// <param name="compilation">The compilation, to look the namespaces up in.</param>
+    /// <returns>The directives for the variant, without duplicates.</returns>
+    private static EquatableArray<string> RenameUsings(EquatableArray<string> usings, string original, string variant, Compilation compilation)
+    {
+        const string prefix = "using ";
+
+        var renamed = ImmutableArray.CreateBuilder<string>();
+
+        foreach (var directive in usings)
+        {
+            var candidate = directive;
+
+            if (directive.StartsWith(prefix, StringComparison.Ordinal)
+                && !directive.StartsWith("using static ", StringComparison.Ordinal)
+                && directive.EndsWith(";", StringComparison.Ordinal)
+                && directive.IndexOf('=') < 0)
+            {
+                var name = directive.Substring(prefix.Length, directive.Length - prefix.Length - 1).Trim();
+                var counterpart = VariantRewriter.Rename(name, original, variant);
+
+                if (!string.Equals(counterpart, name, StringComparison.Ordinal) && NamespaceExists(compilation.GlobalNamespace, counterpart))
+                {
+                    candidate = prefix + counterpart + ";";
+                }
+            }
+
+            if (!renamed.Contains(candidate))
+            {
+                renamed.Add(candidate);
+            }
+        }
+
+        return renamed.ToImmutable();
+    }
+
+    private static bool NamespaceExists(INamespaceSymbol globalNamespace, string name)
+    {
+        var current = globalNamespace;
+
+        foreach (var part in name.Split('.'))
+        {
+            var next = current.GetNamespaceMembers().FirstOrDefault(n => string.Equals(n.Name, part, StringComparison.Ordinal));
+
+            if (next is null)
+            {
+                return false;
+            }
+
+            current = next;
+        }
+
+        return true;
     }
 }
