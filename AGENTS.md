@@ -28,9 +28,11 @@ Verify snapshots in `tests/Zomp.MethodCloning.Tests/Snapshots`. A new or changed
 snapshot is written as `.received.txt`; review it, then rename it to
 `.verified.txt`.
 
-Verify.TUnit is pinned to 31.x. Verify 33 adds a SponsorCheck gate which fails
-the build until a sponsorship or licence property is set, and choosing one is a
-decision for the repository owner, not a routine upgrade.
+Verify 33 adds a SponsorCheck gate which fails the build until a sponsorship or
+licence property is set. This repository claims Verify's `OpenSource` exemption,
+for open source projects which generate no revenue, in `Directory.Build.props`.
+The claim expires at the month in `Verify_SponsorshipExemptionUntil`, at most 12
+months out, and has to be renewed by moving that month forward.
 
 ## Rules for the core sources
 
