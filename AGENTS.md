@@ -63,4 +63,5 @@ CI (`.github/workflows/build.yml`) builds and tests on Ubuntu and Windows, packs
 
 - Default branch `master`; topic branches and PRs for anything reviewable.
 - CRLF line endings, enforced by `.editorconfig`.
+- A pre-commit hook, installed by `pnpm install`, checks C# whitespace with `dotnet format` and yml, yaml, json and md with Prettier (`pnpm format` fixes the latter). CI runs the same hook.
 - Versions come from git through Nerdbank.GitVersioning (`version.json`).

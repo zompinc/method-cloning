@@ -43,6 +43,18 @@ jobs:
           dotnet-version: |
             10.0.x
 
+      # Reads the version to install from the packageManager field of package.json. Only a
+      # Windows job under act skips it: that runs on the host, which has pnpm already, while
+      # the act image for Linux does not.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        if: ${{ runner.os != 'Windows' || !env.ACT }}
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Run pre-commit hooks
+        run: bash $GITHUB_WORKSPACE/.husky/pre-commit normal
+
       # https://github.com/actions/cache/blob/main/examples.md
       - uses: actions/cache@v5
         if: ${{ !env.ACT }}

@@ -1,0 +1,9 @@
+formatLevel=minimal
+if [ -n "$1" ]; then
+  formatLevel=$1
+fi
+
+EXIT_STATUS=0
+dotnet format --verify-no-changes Zomp.MethodCloning.slnx -v $formatLevel whitespace || EXIT_STATUS=$?
+pnpm format:check || EXIT_STATUS=$?
+exit $EXIT_STATUS
