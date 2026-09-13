@@ -8,12 +8,12 @@ It powers [Zomp.SyncMethodGenerator](https://github.com/zompinc/sync-method-gene
 
 ## What you get
 
-| Piece                | Does                                                                 |
-| -------------------- | -------------------------------------------------------------------- |
-| `CloneTarget`        | Finds the methods your attribute marks, on the method or its type    |
-| `MethodLocation`     | Collects the namespaces, usings and partial types the copy needs     |
-| `CloningRewriter`    | Fully qualifies every name, so the copy compiles anywhere            |
-| `ClonedMethodOutput` | Names the files, catches colliding copies and adds the output        |
+| Piece                | Does                                                              |
+| -------------------- | ----------------------------------------------------------------- |
+| `CloneTarget`        | Finds the methods your attribute marks, on the method or its type |
+| `MethodLocation`     | Collects the namespaces, usings and partial types the copy needs  |
+| `CloningRewriter`    | Fully qualifies every name, so the copy compiles anywhere         |
+| `ClonedMethodOutput` | Names the files, catches colliding copies and adds the output     |
 
 You derive from `CloningRewriter`, override what you change, and use its `MapSymbol`, `MapTypeName` and `MapMemberName` hooks to substitute types and names.
 

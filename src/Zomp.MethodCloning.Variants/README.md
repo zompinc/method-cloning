@@ -40,13 +40,13 @@ Works with the .NET 8 SDK or later. Nothing is added to your assembly.
 
 ## What gets swapped
 
-| Where                          | `Bmp` becomes `Gif`                                  |
-| ------------------------------ | ---------------------------------------------------- |
-| The method's name              | `SaveAsBmp` to `SaveAsGif` (the name must contain the word) |
-| Types it uses                  | `Formats.Bmp.BmpEncoder` to `Formats.Gif.GifEncoder` |
-| Static calls by simple name    | `SaveAsBmp(image, stream)` to `SaveAsGif(image, stream)` |
-| Its documentation              | "in the Bmp format" to "in the Gif format"           |
-| The file's using directives    | `using Formats.Bmp;` to `using Formats.Gif;`          |
+| Where                       | `Bmp` becomes `Gif`                                         |
+| --------------------------- | ----------------------------------------------------------- |
+| The method's name           | `SaveAsBmp` to `SaveAsGif` (the name must contain the word) |
+| Types it uses               | `Formats.Bmp.BmpEncoder` to `Formats.Gif.GifEncoder`        |
+| Static calls by simple name | `SaveAsBmp(image, stream)` to `SaveAsGif(image, stream)`    |
+| Its documentation           | "in the Bmp format" to "in the Gif format"                  |
+| The file's using directives | `using Formats.Bmp;` to `using Formats.Gif;`                |
 
 A type with no counterpart, such as a `BmpQuantizer` with no `GifQuantizer`, is kept, with warning ZMC003.
 
@@ -62,9 +62,9 @@ Full rules, limitations and a step-by-step migration from T4: [the reference](ht
 
 ## Diagnostics
 
-| ID     | Severity | Means                                         | Fix                                                |
-| ------ | -------- | --------------------------------------------- | -------------------------------------------------- |
-| ZMC001 | Error    | Two variants would declare the same member    | Remove the duplicate from the list                 |
-| ZMC002 | Error    | The method's name lacks the word being swapped | Rename the method, or take the attribute off it   |
-| ZMC003 | Warning  | A type has no counterpart, so it is kept      | Add the counterpart, or suppress if intended       |
-| ZMC004 | Error    | The method is in a C# 14 extension block      | Write it as a classic extension method             |
+| ID     | Severity | Means                                          | Fix                                             |
+| ------ | -------- | ---------------------------------------------- | ----------------------------------------------- |
+| ZMC001 | Error    | Two variants would declare the same member     | Remove the duplicate from the list              |
+| ZMC002 | Error    | The method's name lacks the word being swapped | Rename the method, or take the attribute off it |
+| ZMC003 | Warning  | A type has no counterpart, so it is kept       | Add the counterpart, or suppress if intended    |
+| ZMC004 | Error    | The method is in a C# 14 extension block       | Write it as a classic extension method          |

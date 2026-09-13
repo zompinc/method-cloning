@@ -101,4 +101,4 @@ public static void SaveAsWebp(this global::SixLabors.ImageSharp.Image source, st
 | ZMC001 | Error    | Two variants would declare the same member                        | Remove the duplicate from the list, or give the methods different parameters |
 | ZMC002 | Error    | The method's name does not contain the word being swapped         | Rename the method to contain the word, or take the attribute off it          |
 | ZMC003 | Warning  | A type named after the original has no counterpart, so it is kept | Add the counterpart type, or suppress the warning if keeping it is intended  |
-| ZMC004 | Error    | The method is a member of a C# 14 extension block                 | Write it as a classic extension method, with `this` on its first parameter  |
+| ZMC004 | Error    | The method is a member of a C# 14 extension block                 | Write it as a classic extension method, with `this` on its first parameter   |
