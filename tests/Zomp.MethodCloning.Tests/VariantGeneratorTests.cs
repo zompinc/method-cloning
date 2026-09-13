@@ -197,6 +197,25 @@ namespace Img
 }
 """);
 
+    // The generator cannot declare an extension block again, so it says so instead of writing nothing.
+    [Test]
+    public Task ExtensionBlockMember() => TestHelper.Verify($$"""
+{{FormatTypes}}
+
+namespace Img
+{
+    public static partial class ImageExtensions
+    {
+        extension(Image source)
+        {
+            [Zomp.MethodCloning.CloneVariants("Bmp", "Gif")]
+            public void SaveAsBmp(System.IO.Stream stream)
+                => source.Save(stream, source.Configuration.ImageFormatsManager.GetEncoder(Img.Formats.Bmp.BmpFormat.Instance));
+        }
+    }
+}
+""");
+
     // Gif has an encoder but no quantizer, so the Gif variant keeps the Bmp one and says so.
     [Test]
     public Task NoCounterpart() => TestHelper.Verify($$"""

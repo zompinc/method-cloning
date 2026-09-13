@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Collections.Immutable;
@@ -65,6 +66,19 @@ namespace Zomp.MethodCloning
             .WithTrackingName("Clone");
 
         ClonedMethodOutput.Register(context, variants, VariantDiagnostics.CollidingVariants);
+
+        // Roslyn 4.8, which this generator is built against, cannot declare an extension block
+        // again, so a member of one is reported instead of silently left without variants.
+        var extensionMembers = context.SyntaxProvider.ForAttributeWithMetadataName(
+            AttributeName,
+            predicate: static (node, _) => node is MethodDeclarationSyntax { Parent: TypeDeclarationSyntax { Keyword.ValueText: "extension" } },
+            transform: static (ctx, _) =>
+            {
+                var identifier = ((MethodDeclarationSyntax)ctx.TargetNode).Identifier;
+                return ReportedDiagnostic.Create(VariantDiagnostics.ExtensionBlockMember, identifier.GetLocation(), identifier.ValueText);
+            });
+
+        context.RegisterSourceOutput(extensionMembers, static (spc, diagnostic) => spc.ReportDiagnostic(diagnostic));
     }
 
     private static ImmutableArray<ClonedMethod> Clone(CloneTarget target, CancellationToken ct)

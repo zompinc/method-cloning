@@ -1,0 +1,1 @@
+﻿// ZMC004 Error: Cannot write variants of 'SaveAsBmp'. Members of C# 14 extension blocks are not supported yet.

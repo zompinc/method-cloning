@@ -40,5 +40,16 @@ internal static class VariantDiagnostics
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
+    /// <summary>
+    /// The method is a member of a C# 14 extension block, which the generator cannot declare again.
+    /// </summary>
+    internal static readonly DiagnosticDescriptor ExtensionBlockMember = new(
+        id: "ZMC004",
+        title: "Extension block members are not supported",
+        messageFormat: "Cannot write variants of '{0}'. Members of C# 14 extension blocks are not supported yet.",
+        category: Usage,
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
     private const string Usage = "Usage";
 }

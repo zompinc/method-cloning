@@ -45,7 +45,7 @@ To see them, set `<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>`
 - **String literals and comments inside the method keep the original word.** Only the documentation above it is swapped.
 - **Variants go into the method's own type.** Templates which specialize one class per pixel format cannot be replaced this way.
 - **Only methods are cloned**, not properties, fields or types.
-- **Members of C# 14 extension blocks are skipped.** The generator is built against Roslyn 4.8, which does not know the blocks, so `[CloneVariants]` on such a member, or on the type holding the block, writes nothing for it.
+- **Members of C# 14 extension blocks are not supported.** The generator is built against Roslyn 4.8, which cannot declare an extension block again. `[CloneVariants]` on such a member is reported as ZMC004; on the type holding the block, it leaves the block's members out.
 
 ## Migrating from a T4 template
 
@@ -101,3 +101,4 @@ public static void SaveAsWebp(this global::SixLabors.ImageSharp.Image source, st
 | ZMC001 | Error    | Two variants would declare the same member                        | Remove the duplicate from the list, or give the methods different parameters |
 | ZMC002 | Error    | The method's name does not contain the word being swapped         | Rename the method to contain the word, or take the attribute off it          |
 | ZMC003 | Warning  | A type named after the original has no counterpart, so it is kept | Add the counterpart type, or suppress the warning if keeping it is intended  |
+| ZMC004 | Error    | The method is a member of a C# 14 extension block                 | Write it as a classic extension method, with `this` on its first parameter  |

@@ -56,7 +56,7 @@ A type with no counterpart, such as a `BmpQuantizer` with no `GifQuantizer`, is 
 - **Nullability follows your method.** Write it in `#nullable disable` to match what a T4 template produced.
 - **The word is replaced everywhere.** With `Normal` as the word, `Normalize()` would become `Multiplyize()`. Pick a word that appears nowhere else.
 - **Not swapped:** generic and nested types, calls written as `image.SaveAsBmp()`, string literals, and comments inside the method.
-- **Not cloned:** members of C# 14 extension blocks.
+- **Not cloned:** members of C# 14 extension blocks (ZMC004).
 
 Full rules, limitations and a step-by-step migration from T4: [the reference](https://github.com/zompinc/method-cloning/blob/master/docs/variants.md).
 
@@ -67,3 +67,4 @@ Full rules, limitations and a step-by-step migration from T4: [the reference](ht
 | ZMC001 | Error    | Two variants would declare the same member    | Remove the duplicate from the list                 |
 | ZMC002 | Error    | The method's name lacks the word being swapped | Rename the method, or take the attribute off it   |
 | ZMC003 | Warning  | A type has no counterpart, so it is kept      | Add the counterpart, or suppress if intended       |
+| ZMC004 | Error    | The method is in a C# 14 extension block      | Write it as a classic extension method             |

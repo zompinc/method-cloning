@@ -44,6 +44,7 @@ The files in `src/Zomp.MethodCloning` compile inside other people's projects, wh
 | ZMC001 | Error    | Two variants would declare the same member                  |
 | ZMC002 | Error    | The method's name does not contain the word being swapped   |
 | ZMC003 | Warning  | A type named after the original has no counterpart, so kept |
+| ZMC004 | Error    | The method is a member of a C# 14 extension block           |
 
 A new descriptor must also be listed in `src/Zomp.MethodCloning.Variants/AnalyzerReleases.Unshipped.md`, or `RS2008` fails the build.
 
