@@ -14,9 +14,27 @@
     <NoWarn>$(NoWarn);NU5128</NoWarn>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);AddGeneratorToPackage</TargetsForTfmSpecificContentInPackage>
 
-    <!-- The Zomp.MethodCloning sources compile in with their own usings, which implicit ones would duplicate. -->
+    <!-- The global usings are listed below rather than taken from the implicit set. -->
     <ImplicitUsings>disable</ImplicitUsings>
+    <!--
+      The Zomp.MethodCloning sources compile in with their own usings, which the global ones make
+      redundant here. The core project, which has no global usings, checks them instead.
+    -->
+    <NoWarn>$(NoWarn);IDE0005</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.CodeAnalysis" />
+    <Using Include="Microsoft.CodeAnalysis.CSharp" />
+    <Using Include="Microsoft.CodeAnalysis.CSharp.Syntax" />
+    <Using Include="Microsoft.CodeAnalysis.Text" />
+    <Using Include="System" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Collections.Immutable" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Text" />
+    <Using Include="System.Threading" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />

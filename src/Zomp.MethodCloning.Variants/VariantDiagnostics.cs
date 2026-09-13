@@ -1,5 +1,3 @@
-using Microsoft.CodeAnalysis;
-
 namespace Zomp.MethodCloning.Variants;
 
 /// <summary>
