@@ -5,7 +5,7 @@ namespace Test
     partial class WithNullableDisabled
     {
         [global::Cloning.CloneAttribute]
-        public async global::System.Threading.Tasks.Task MethodAsyncClone(string l) => await System.Threading.Tasks.Task.CompletedTask;
+        public async global::System.Threading.Tasks.Task MethodAsyncClone(string l) => await global::System.Threading.Tasks.Task.CompletedTask;
     }
 }
 

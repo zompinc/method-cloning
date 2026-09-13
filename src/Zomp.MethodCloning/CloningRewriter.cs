@@ -228,6 +228,15 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
             }
         }
 
+        // A type written with its namespace in front of a member, as in
+        // System.Threading.Tasks.Task.CompletedTask, is a chain of member accesses rather than a
+        // type name, so the visitors of type names never see it.
+        else if (node.Expression is MemberAccessExpressionSyntax
+            && GetSymbol(node.Expression) is INamedTypeSymbol { IsGenericType: false } namedType)
+        {
+            @base = @base.WithExpression(ProcessSymbol(namedType).WithTriviaFrom(@base.Expression));
+        }
+
         return @base;
     }
 

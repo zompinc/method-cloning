@@ -81,25 +81,6 @@ internal sealed class VariantRewriter(SemanticModel semanticModel, MethodDeclara
     }
 
     /// <summary>
-    /// Maps a type written with its namespace in front of a member, as in
-    /// <c>Formats.Bmp.BmpFormat.Instance</c>. In an expression that is a chain of member accesses
-    /// rather than a type name, so the base, which qualifies type names, leaves it as it is.
-    /// </summary>
-    /// <param name="node">The member access.</param>
-    /// <returns>The member access, on the counterpart of the type when it has one.</returns>
-    public override SyntaxNode? VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
-    {
-        var visited = base.VisitMemberAccessExpression(node);
-
-        return visited is MemberAccessExpressionSyntax access
-            && node.Expression is MemberAccessExpressionSyntax
-            && GetSymbol(node.Expression) is INamedTypeSymbol type
-            && MapSymbol(type) is { } counterpart
-            ? access.WithExpression(counterpart.WithTriviaFrom(access.Expression))
-            : visited;
-    }
-
-    /// <summary>
     /// Swaps the word naming one variant for the word naming another.
     /// </summary>
     /// <param name="text">Text to swap the word in.</param>

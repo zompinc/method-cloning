@@ -176,6 +176,13 @@ public async Task HasIsExpressionAsync(Stream stream) => _ = stream is FileStrea
     [Test]
     public Task NullableTupleOutVariable() => "new Dictionary<int, (int I, Stream? S)?>().TryGetValue(0, out (int I, Stream? S)? a);".Verify(SourceType.MethodBody);
 
+    // A type written with its namespace, or a nested one, in front of a member is a chain of member accesses.
+    [Test]
+    public Task NamespaceQualifiedMemberAccess() => """
+_ = System.IO.Path.DirectorySeparatorChar;
+_ = Environment.SpecialFolder.Desktop;
+""".Verify(SourceType.MethodBody);
+
     [Test]
     public Task QualifiedGenericName() => "System.Collections.Generic.HashSet<byte> z = null!;".Verify(SourceType.MethodBody);
 
