@@ -74,9 +74,7 @@ internal static class ClonedMethodOutput
     {
         var location = m.Location;
 
-        var scope = $"{string.Join(".", location.Namespaces)}" +
-            $".{string.Join(".", location.Parents.Select(static p => p.ScopeName))}" +
-            (location.IsCSharp14Extension ? ".ext" : string.Empty);
+        var scope = location.Scope + (location.IsCSharp14Extension ? ".ext" : string.Empty);
 
         var method = m.MethodName + (location.Index == 1 ? string.Empty : "_" + location.Index);
 
