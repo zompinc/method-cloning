@@ -272,7 +272,9 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
     {
         var @base = (QualifiedNameSyntax)base.VisitQualifiedName(node)!;
 
-        return @base.Right is GenericNameSyntax ? @base.Right : (SyntaxNode)ProcessType(node);
+        // The generic name on the right is fully qualified by its own visitor, so it replaces the
+        // whole name, and takes over the indentation which led the left side.
+        return @base.Right is GenericNameSyntax ? @base.Right.WithTriviaFrom(@base) : (SyntaxNode)ProcessType(node);
     }
 
     /// <inheritdoc/>

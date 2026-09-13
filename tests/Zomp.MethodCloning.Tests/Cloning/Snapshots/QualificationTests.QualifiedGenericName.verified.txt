@@ -7,7 +7,7 @@ partial class Class
     [global::Cloning.CloneAttribute]
     async Task MethodAsyncClone(global::System.Threading.CancellationToken ct)
     {
-global::System.Collections.Generic.HashSet<byte> z = null!;
+        global::System.Collections.Generic.HashSet<byte> z = null!;
     }
 }
 
