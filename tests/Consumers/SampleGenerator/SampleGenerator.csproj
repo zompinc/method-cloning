@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- A source generator written the way the core's README describes, compiling the core from the package. -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <!-- A sample, not a shipped analyzer, so its diagnostic has no release notes. -->
+    <NoWarn>$(NoWarn);RS2008</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+    <PackageReference Include="PolySharp" PrivateAssets="all" />
+    <PackageReference Include="Zomp.MethodCloning" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Global usings, which make the core's own usings redundant and must not trouble it. -->
+  <ItemGroup>
+    <Using Include="Microsoft.CodeAnalysis" />
+    <Using Include="Microsoft.CodeAnalysis.CSharp" />
+    <Using Include="Microsoft.CodeAnalysis.CSharp.Syntax" />
+    <Using Include="System.Collections.Immutable" />
+    <Using Include="Zomp.MethodCloning" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,10 @@
+<Project>
+  <ItemGroup>
+    <!-- The newest version packed into artifacts/package/release. -->
+    <PackageVersion Include="Zomp.MethodCloning" Version="*-*" />
+    <PackageVersion Include="Zomp.MethodCloning.Variants" Version="*-*" />
+    <!-- The lowest Roslyn the core supports, compiled with none of the ROSLYN_* constants. -->
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+    <PackageVersion Include="PolySharp" Version="1.16.0" />
+  </ItemGroup>
+</Project>

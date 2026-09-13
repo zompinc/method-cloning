@@ -1,0 +1,28 @@
+<Project>
+
+  <!--
+    Stands alone rather than importing the repository's props: these projects consume the packed
+    packages the way anyone who installs them does. The analysis is strict, since a consumer's
+    may be, and the core's sources have to leave it alone.
+  -->
+  <PropertyGroup>
+    <ArtifactsPath>$(MSBuildThisFileDirectory)..\..\artifacts\consumers</ArtifactsPath>
+    <UseArtifactsOutput>true</UseArtifactsOutput>
+    <!-- Kept apart from the global cache, so that a repacked version is not served stale from it. -->
+    <RestorePackagesPath>$(ArtifactsPath)\packages</RestorePackagesPath>
+    <IsPackable>false</IsPackable>
+
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageFloatingVersionsEnabled>true</CentralPackageFloatingVersionsEnabled>
+  </PropertyGroup>
+
+</Project>

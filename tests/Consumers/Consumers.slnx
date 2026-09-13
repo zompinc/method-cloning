@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SampleGenerator/SampleGenerator.csproj" />
+  <Project Path="SampleGeneratorUser/SampleGeneratorUser.csproj" />
+  <Project Path="SampleVariantsUser/SampleVariantsUser.csproj" />
+</Solution>
