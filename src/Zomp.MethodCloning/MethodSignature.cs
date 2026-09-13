@@ -34,7 +34,7 @@ internal sealed record MethodSignature(string Key, string FilePath, TextSpan Tex
         => other is not null && string.Equals(Key, other.Key, StringComparison.Ordinal);
 
     /// <inheritdoc/>
-    public override int GetHashCode() => Key.GetHashCode();
+    public override int GetHashCode() => StringComparer.Ordinal.GetHashCode(Key);
 
     /// <summary>
     /// Describes the method which is about to be emitted, precisely enough to tell whether two

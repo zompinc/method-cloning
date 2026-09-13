@@ -49,11 +49,11 @@ internal static class ClonedMethodSource
             foreach (var @namespace in location.Namespaces)
             {
                 var indent = new string(' ', 4 * i);
-                _ = sbBegin.Append($$"""
+                _ = sbBegin.Append(FormattableString.Invariant($$"""
 {{indent}}namespace {{@namespace}}
 {{indent}}{
 
-""");
+"""));
                 _ = sbEnd.Insert(0, $$"""
 {{indent}}}
 
@@ -66,10 +66,10 @@ internal static class ClonedMethodSource
         // innermost level. One which names a namespace relatively still resolves from there.
         foreach (var @using in location.InnerUsings)
         {
-            _ = sbBegin.Append($$"""
+            _ = sbBegin.Append(FormattableString.Invariant($$"""
 {{new string(' ', 4 * i)}}{{@using}}
 
-""");
+"""));
         }
 
         if (!location.InnerUsings.IsEmpty)
@@ -104,11 +104,11 @@ internal static class ClonedMethodSource
             var classDeclarationLine = $"{modifiers}partial {parentType} {parent.ParentName}{(parent.TypeParameterListSyntax.IsEmpty ? string.Empty
                 : "<" + string.Join(", ", parent.TypeParameterListSyntax) + ">")}";
 
-            _ = sbBegin.Append($$"""
+            _ = sbBegin.Append(FormattableString.Invariant($$"""
 {{indent}}{{classDeclarationLine}}
 {{indent}}{
 
-""");
+"""));
             _ = sbEnd.Insert(0, $$"""
 {{indent}}}
 
@@ -129,10 +129,10 @@ internal static class ClonedMethodSource
 """);
             }
 
-            _ = sbOuterUsings.Append($$"""
+            _ = sbOuterUsings.Append(FormattableString.Invariant($$"""
 {{@using}}
 
-""");
+"""));
         }
 
         var beforeNamespace = $"""
