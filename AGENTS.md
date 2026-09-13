@@ -51,10 +51,13 @@ A new descriptor must also be listed in `src/Zomp.MethodCloning.Variants/Analyze
 ## Packing
 
 ```bash
-dotnet pack -c Release -o <feed>
+dotnet pack -c Release
+dotnet build tests/Consumers/Consumers.slnx -c Release
 ```
 
-Until the packages are on a public feed, consumers restore them from a local folder feed, `~/.nuget/local-feed`, mapped in their `nuget.config`. A branch which depends on it cannot pass CI.
+The packages land in `artifacts/package/release`. The tests compile the core from source, so `tests/Consumers` builds from the packages instead, the way anyone who installs them does: a generator which compiles the core from `Zomp.MethodCloning`, a project which runs that generator, and one which uses `Zomp.MethodCloning.Variants`. They take the newest version in `artifacts/package/release` and restore it into `artifacts/consumers/packages`; delete that folder after repacking a version with the same number.
+
+CI (`.github/workflows/build.yml`) builds and tests on Ubuntu and Windows, packs, and builds the consumers. Running the workflow by hand on `master` signs the packages, pushes them to nuget.org and publishes a GitHub release.
 
 ## Conventions
 
