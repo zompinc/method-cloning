@@ -1,10 +1,15 @@
 # Zomp.MethodCloning.Variants
 
-Writes the variants of a method from the one written by hand. It replaces T4
-templates which stamp out the same method once per format, pixel type or blend
-mode, with code which compiles, refactors and debugs like any other.
+A source generator which writes the variants of a method from the one written by hand. It replaces T4 templates which stamp out the same method once per file format, pixel type or blend mode: the method you write is ordinary C#, which compiles, refactors and debugs like any other code, and the variants are regenerated on every build, in any IDE and on the command line.
+
+It is built on [Zomp.MethodCloning](https://github.com/zompinc/method-cloning), which handles copying a method into a file of its own.
+
+## Example
 
 ```csharp
+using Img.Formats.Bmp;
+using Zomp.MethodCloning;
+
 [CloneVariants("Bmp", "Gif", "Png")]
 public static partial class ImageExtensions
 {
@@ -16,34 +21,121 @@ public static partial class ImageExtensions
 }
 ```
 
-generates `SaveAsGif`, taking a `GifEncoder` and using `GifFormat.Instance`, and
-`SaveAsPng` in the same way. The word naming the variant is swapped:
+The generator adds `SaveAsGif`, which takes a `GifEncoder` and uses `GifFormat.Instance`, and `SaveAsPng` in the same way. The Gif variant comes out as:
 
-- in the name of the method, which therefore has to contain it;
-- in every type the method refers to whose name contains it, found by swapping
-  the word in its namespace and name (`Formats.Bmp.BmpEncoder` becomes
-  `Formats.Gif.GifEncoder`);
-- in every static member it calls, such as another overload (`SaveAsBmp` becomes
-  `SaveAsGif`);
-- in its documentation;
-- in the using directives of the file the variant is written to, when the
-  namespace they would then name exists.
+```csharp
+/// <summary>
+/// Saves the image to the given stream in the Gif format.
+/// </summary>
+public static void SaveAsGif(this global::Img.Image source, global::System.IO.Stream stream, global::Img.Formats.Gif.GifEncoder? encoder)
+    => source.Save(stream, encoder ?? source.Configuration.ImageFormatsManager.GetEncoder(global::Img.Formats.Gif.GifFormat.Instance));
+```
 
-Applied to a partial type, the attribute marks every method in that declaration
-of the type. Each variant keeps the nullable context of the method it is written
-from, and goes to a file named after that method and the variant, such as
-`ImageExtensions.SaveAsBmp.Gif.g.cs`.
-
-## Diagnostics
-
-| ID     | Severity | Meaning                                                     |
-| ------ | -------- | ----------------------------------------------------------- |
-| ZMC001 | Error    | Two variants would declare the same member                  |
-| ZMC002 | Error    | The method's name does not contain the word being swapped   |
-| ZMC003 | Warning  | A type named after the original has no counterpart, so kept |
-
-## Usage
+## Installation
 
 ```xml
 <PackageReference Include="Zomp.MethodCloning.Variants" PrivateAssets="all" />
 ```
+
+The package is a development dependency and adds nothing to your assembly's dependencies. It needs the Roslyn which ships with the .NET 8 SDK (4.8) or later, and nothing else.
+
+The attribute is generated into your project as an internal type. It is marked `[Conditional]`, so using it leaves nothing in your compiled assembly's metadata.
+
+## The attribute
+
+`[CloneVariants(original, variants...)]` takes the word naming the variant the method is written for, then the words naming the variants to write.
+
+- On a method, it marks that method.
+- On a partial class, struct or interface, it marks every method in that declaration of the type. Methods in its other partial declarations are left alone.
+- An attribute on a method wins over the one on its type, so one type can hold methods written for different variants, each with its own list.
+- A variant equal to the original is skipped.
+
+The attribute is dropped from the variants. Everything else on the method, such as `[Obsolete]`, is kept.
+
+## What is swapped
+
+Swapping is a plain replacement of one word by another, applied in these places and nowhere else:
+
+- **The method's name.** It has to contain the word, or every variant would be named like the original (ZMC002).
+- **Types the method refers to** whose name contains the word: in parameters, the return type, type arguments, local variables, casts, `typeof`, `nameof`, `is` and `as`, object creation, and member access such as `BmpFormat.Instance`. The counterpart is found by swapping the word in the type's namespace and name, so `Img.Formats.Bmp.BmpEncoder` becomes `Img.Formats.Gif.GifEncoder`. When no such type exists, the variant keeps the original and ZMC003 is reported.
+- **Static methods and fields referred to by simple name**, such as another overload: `SaveAsBmp(source, stream, default)` becomes `SaveAsGif(source, stream, default)`. The counterpart does not have to exist yet; it may be another variant.
+- **The documentation** above the method, as text.
+- **The using directives** of the file the variant is written to: `using Img.Formats.Bmp;` becomes `using Img.Formats.Gif;` when that namespace exists, so that references the documentation makes by simple name resolve. Aliases and `using static` are kept as they are.
+
+Everything else the method names is fully qualified, so that the variant compiles in a file of its own.
+
+## Nullability
+
+Each variant is written in the nullable context of the method it comes from. A method in a `#nullable disable` region gets variants without annotations.
+
+This matters when the variants replace template output. Files marked `// <auto-generated/>` are nullable oblivious, so a public API a template generated usually is too. Writing the hand-written method in `#nullable disable` keeps that API exactly as it was.
+
+## Generated files
+
+Each variant goes to a file of its own, named after the method it comes from and the variant, with the overload's position when several overloads share the name: `ImageExtensions.SaveAsBmp.Gif.g.cs`, `ImageExtensions.SaveAsBmp.Gif_2.g.cs`. Set `<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>` to see them under `obj`.
+
+## Limitations
+
+- **The word is replaced wherever it occurs.** Choose one which does not also appear in unrelated names: with `Normal` as the original, a static call to `Normalize(...)` would become `Multiplyize(...)`.
+- **Generic and nested types are not swapped.** A `BmpDecoder<T>` keeps its name, although a type argument such as the `BmpEncoder` in `List<BmpEncoder>` is swapped. A nested type is kept and reported as ZMC003.
+- **Calls written as extension or instance calls are not renamed.** `SaveAsBmp(source, path)` is swapped; `source.SaveAsBmp(path)` is not.
+- **String literals and comments inside the method body keep the original word.** Only the documentation above the method is swapped.
+- **Variants go into the type the method is declared in.** Writing variants into other types, as templates which specialize one class per pixel format do, is not supported.
+- **Only methods are cloned**, not properties, fields or types.
+
+## Migrating from T4 templates
+
+The steps below were tried on ImageSharp's per-format save and metadata extensions, removing about 1,950 lines of template and generated code with the public API unchanged.
+
+1. Reference the package.
+1. Pick one variant and write its methods by hand, replacing the template's placeholder with that variant's word. The template's loop over the variants becomes the attribute's list.
+1. If the template's output was nullable oblivious, as generated files are, put the hand-written methods in `#nullable disable`.
+1. Make the type `partial` if the template declared it without.
+1. Where different methods cover different lists of variants, as ImageSharp's frame metadata does, put an attribute on each method, written for a variant in its own list.
+1. Delete the template, its generated file and their entries in the project file.
+1. Compare the public API before and after, for instance by building both and diffing the output of ApiCompat or of an API dump. For ImageSharp it was identical, nullability included.
+
+The template
+
+```text
+<#
+    foreach (string fmt in formats)
+    {
+#>
+    public static void SaveAs<#= fmt #>(this Image source, string path, <#= fmt #>Encoder encoder) =>
+        source.Save(
+            path,
+            encoder ?? source.Configuration.ImageFormatsManager.GetEncoder(<#= fmt #>Format.Instance));
+```
+
+becomes a method written for Bmp
+
+```csharp
+[CloneVariants("Bmp", "Ani", "Cur", "Gif", "Ico", "Jpeg", "Pbm", "Png", "Qoi", "Tga", "Tiff", "Webp", "Exr")]
+public static partial class ImageExtensions
+{
+    public static void SaveAsBmp(this Image source, string path, BmpEncoder encoder)
+        => source.Save(
+            path,
+            encoder ?? source.Configuration.ImageFormatsManager.GetEncoder(BmpFormat.Instance));
+}
+```
+
+and the generator writes the other twelve, such as
+
+```csharp
+public static void SaveAsWebp(this global::SixLabors.ImageSharp.Image source, string path, global::SixLabors.ImageSharp.Formats.Webp.WebpEncoder encoder)
+    => source.Save(
+        path,
+        encoder ?? source.Configuration.ImageFormatsManager.GetEncoder(global::SixLabors.ImageSharp.Formats.Webp.WebpFormat.Instance));
+```
+
+## Diagnostics
+
+Nothing is generated for a method with an error.
+
+| ID     | Severity | Meaning                                                               | Fix                                                                          |
+| ------ | -------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| ZMC001 | Error    | Two variants would declare the same member                            | Remove the duplicate from the list, or give the methods different parameters |
+| ZMC002 | Error    | The method's name does not contain the word being swapped             | Rename the method to contain the word, or take the attribute off it          |
+| ZMC003 | Warning  | A type named after the original has no counterpart, so the variant keeps it | Add the counterpart type, or suppress the warning if keeping it is intended  |
