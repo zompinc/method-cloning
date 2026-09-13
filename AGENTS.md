@@ -7,6 +7,10 @@ Two packages for Roslyn source generators which copy a method into a file of its
 
 The core came out of [Zomp.SyncMethodGenerator](https://github.com/zompinc/sync-method-generator), which is its other consumer.
 
+## Documentation
+
+The package READMEs are what nuget.org shows, so they stay short: what the package is, an example, how to install it, and the rules at a glance. Reference material goes in `docs/`, linked from the READMEs by absolute GitHub URL, since relative links break on nuget.org.
+
 ## Build & Test
 
 ```bash

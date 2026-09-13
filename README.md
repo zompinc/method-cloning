@@ -1,10 +1,22 @@
 # Zomp.MethodCloning
 
-Building blocks for Roslyn source generators which copy a method into a file of its own and change it on the way, and a ready generator built on them.
+**Roslyn source generators that copy methods, so you write each one once.**
 
-| Package                                                       | What it is                                                                  |
-| ------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| [Zomp.MethodCloning](src/Zomp.MethodCloning)                   | The core, shipped as source and compiled into the generator which uses it   |
-| [Zomp.MethodCloning.Variants](src/Zomp.MethodCloning.Variants) | Writes the variants of a method from the one written by hand, replacing T4 |
+| I want to...                                                        | Use                                                              |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Stop maintaining T4 templates that repeat a method per format or type | [Zomp.MethodCloning.Variants](src/Zomp.MethodCloning.Variants) |
+| Write my own generator that copies methods and changes them         | [Zomp.MethodCloning](src/Zomp.MethodCloning)                     |
 
-The core is what [Zomp.SyncMethodGenerator](https://github.com/zompinc/sync-method-generator) uses to write the sync version of an async method, without the async rules.
+[Zomp.SyncMethodGenerator](https://github.com/zompinc/sync-method-generator), which writes the sync version of async methods, is built on the same core.
+
+## Learn more
+
+- [Variants reference](docs/variants.md): every rule, the limitations, and migrating from T4.
+- [AGENTS.md](AGENTS.md): how the repository is built and tested, and the rules the core's source files follow.
+
+## Build
+
+```bash
+dotnet build
+dotnet test
+```
