@@ -45,6 +45,7 @@ To see them, set `<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>`
 - **String literals and comments inside the method keep the original word.** Only the documentation above it is swapped.
 - **Variants go into the method's own type.** Templates which specialize one class per pixel format cannot be replaced this way.
 - **Only methods are cloned**, not properties, fields or types.
+- **Members of C# 14 extension blocks are skipped.** The generator is built against Roslyn 4.8, which does not know the blocks, so `[CloneVariants]` on such a member, or on the type holding the block, writes nothing for it.
 
 ## Migrating from a T4 template
 

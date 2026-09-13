@@ -56,6 +56,7 @@ A type with no counterpart, such as a `BmpQuantizer` with no `GifQuantizer`, is 
 - **Nullability follows your method.** Write it in `#nullable disable` to match what a T4 template produced.
 - **The word is replaced everywhere.** With `Normal` as the word, `Normalize()` would become `Multiplyize()`. Pick a word that appears nowhere else.
 - **Not swapped:** generic and nested types, calls written as `image.SaveAsBmp()`, string literals, and comments inside the method.
+- **Not cloned:** members of C# 14 extension blocks.
 
 Full rules, limitations and a step-by-step migration from T4: [the reference](https://github.com/zompinc/method-cloning/blob/master/docs/variants.md).
 

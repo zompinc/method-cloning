@@ -18,7 +18,13 @@ dotnet build
 dotnet test
 ```
 
-Tests use TUnit on Microsoft.Testing.Platform (`global.json` opts in) with Verify snapshots in `tests/Zomp.MethodCloning.Tests/Snapshots`. A new or changed snapshot is written as `.received.txt`; review it, then rename it to `.verified.txt`.
+Tests use TUnit on Microsoft.Testing.Platform (`global.json` opts in) with Verify snapshots. A new or changed snapshot is written as `.received.txt`; review it, then rename it to `.verified.txt`.
+
+- `tests/Zomp.MethodCloning.Testing` compiles the core sources against Roslyn 5.0 with every `ROSLYN_*` constant defined, and adds an identity generator: `[Cloning.Clone]` copies a method and changes nothing but its name, appending `Clone`. Its output is what the core does on its own.
+- `tests/Zomp.MethodCloning.Tests/Cloning` tests the core through the identity generator: qualification, file names, containing types, nullability, preprocessor directives, extension blocks and incremental caching. Snapshots are in `Cloning/Snapshots`. Each clone has to compile without errors, and without broken `cref`s.
+- The rest of `tests/Zomp.MethodCloning.Tests` tests the Variants generator, with snapshots in `Snapshots`.
+
+A cloning bug gets its failing test and its fix here, as an identity test, whichever consumer it was found through. Zomp.SyncMethodGenerator adds a test of its own only when the bug shows up through its async-to-sync rewriting.
 
 Verify 33 adds a SponsorCheck gate which fails the build until a sponsorship or licence property is set. This repository claims Verify's `OpenSource` exemption, for open source projects which generate no revenue, in `Directory.Build.props`. The claim expires at the month in `Verify_SponsorshipExemptionUntil`, at most 12 months out, and has to be renewed by moving that month forward.
 
