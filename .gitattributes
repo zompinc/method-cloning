@@ -1,0 +1,3 @@
+# Verify requires its snapshots to use \n line endings, and Windows runners check files out
+# with core.autocrlf=true, which would otherwise turn them into \r\n.
+*.verified.txt text eol=lf working-tree-encoding=UTF-8
