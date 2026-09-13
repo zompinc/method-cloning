@@ -186,9 +186,17 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }} # gh infers the repo from this when no checkout is present
           VERSION: ${{ steps.version.outputs.version }}
+        # A version with a prerelease label, such as 1.0.20-alpha, is released as a prerelease,
+        # which GitHub does not mark as the latest release.
         run: |
+          prerelease=()
+          if [[ "$VERSION" == *-* ]]; then
+            prerelease=(--prerelease)
+          fi
+
           gh release create "v$VERSION" \
             --draft \
+            "${prerelease[@]}" \
             --target "$GITHUB_SHA" \
             --title "v$VERSION" \
             --generate-notes \
