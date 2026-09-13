@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Compiles the Zomp.MethodCloning sources the way the core project does, against Roslyn 5.0 with
+    every ROSLYN_* constant defined, so that the tests exercise the newest branch of each guard. The
+    Variants generator is built against Roslyn 4.8 and compiles the oldest.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- The sources declare their own usings, which implicit ones would duplicate. -->
+    <ImplicitUsings>disable</ImplicitUsings>
+    <DefineConstants>$(DefineConstants);ROSLYN_4_8_OR_GREATER;ROSLYN_4_12_OR_GREATER;ROSLYN_5_0_OR_GREATER</DefineConstants>
+    <!-- The identity generator's diagnostic is for the tests, not a shipped analyzer. -->
+    <NoWarn>$(NoWarn);RS2008</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\src\Zomp.MethodCloning\*.cs" Link="MethodCloning\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>

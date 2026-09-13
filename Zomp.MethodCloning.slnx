@@ -4,6 +4,7 @@
     <Project Path="src/Zomp.MethodCloning.Variants/Zomp.MethodCloning.Variants.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Zomp.MethodCloning.Testing/Zomp.MethodCloning.Testing.csproj" />
     <Project Path="tests/Zomp.MethodCloning.Tests/Zomp.MethodCloning.Tests.csproj" />
   </Folder>
 </Solution>

@@ -1,0 +1,2 @@
+﻿// ZMC001 Error: Cannot write this variant. It produces 'Img.ImageExtensions.SaveAsGif(global::Img.Image,global::System.IO.Stream)', which another method also produces.
+// ZMC001 Error: Cannot write this variant. It produces 'Img.ImageExtensions.SaveAsGif(global::Img.Image,global::System.IO.Stream)', which another method also produces.
