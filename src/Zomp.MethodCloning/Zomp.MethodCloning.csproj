@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Title>Zomp Method Cloning</Title>
     <Description>Building blocks for Roslyn source generators which copy a method into a file of its own and transform it. Ships as source, compiled into the generator which references it.</Description>
     <PackageTags>roslyn source-generator cloning</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>

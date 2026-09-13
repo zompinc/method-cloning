@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Title>Zomp Method Cloning Variants</Title>
     <Description>A source generator which writes the variants of a method from the one written by hand: SaveAsBmp becomes SaveAsGif and SaveAsPng, with their types and documentation. Replaces T4 templates which stamp out the same method once per type.</Description>
     <PackageTags>roslyn source-generator t4 variants</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
