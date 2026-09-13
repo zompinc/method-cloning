@@ -4,6 +4,7 @@
 #nullable enable
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Immutable;
@@ -180,7 +181,8 @@ internal sealed record MethodLocation(
 
     /// <summary>
     /// Records the directives, innermost first, so that walking outwards from the method builds
-    /// them up in the order they were written.
+    /// them up in the order they were written. Global directives are left out: they already reach
+    /// the file the copy is emitted to, which would otherwise declare them a second time.
     /// </summary>
     /// <param name="destination">Collected directives.</param>
     /// <param name="usings">Directives declared at one level.</param>
@@ -189,7 +191,10 @@ internal sealed record MethodLocation(
         var index = 0;
         foreach (var @using in usings)
         {
-            destination.Insert(index++, @using.ToString());
+            if (!@using.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword))
+            {
+                destination.Insert(index++, @using.ToString());
+            }
         }
     }
 }

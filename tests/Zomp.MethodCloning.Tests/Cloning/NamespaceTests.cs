@@ -22,6 +22,23 @@ namespace NsOne
 }
 """.Verify(SourceType.Full);
 
+    // A global using already reaches the file the clone lands in, so the clone must not declare it again.
+    [Test]
+    public Task GlobalUsingInSourceFile() => """
+global using System.Globalization;
+using System.Text;
+
+namespace N
+{
+    public partial class C
+    {
+        /// <summary>Formats with <see cref="CultureInfo"/> into a <see cref="StringBuilder"/>.</summary>
+        [Clone]
+        public async Task MethodAsync() => _ = new StringBuilder().Append(CultureInfo.InvariantCulture, $"{1}");
+    }
+}
+""".Verify(SourceType.Full);
+
     [Test]
     public Task StaticUsings() => """
 using static N2.C2;
