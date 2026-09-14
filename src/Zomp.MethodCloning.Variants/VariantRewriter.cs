@@ -44,7 +44,7 @@ internal sealed class VariantRewriter(SemanticModel semanticModel, MethodDeclara
         // The base qualifies a return type written as a generic, nullable or qualified name, but
         // leaves one written as a simple name, which may name the variant, as it is.
         var returnType = node.ReturnType is IdentifierNameSyntax
-            ? ProcessType(node.ReturnType).WithTriviaFrom(clone.ReturnType)
+            ? Qualify(node.ReturnType).WithTriviaFrom(clone.ReturnType)
             : clone.ReturnType;
 
         return clone
@@ -105,7 +105,7 @@ internal sealed class VariantRewriter(SemanticModel semanticModel, MethodDeclara
         if (SemanticModel.Compilation.GetTypeByMetadataName(counterpartName) is { } counterpart
             && !SymbolEqualityComparer.Default.Equals(counterpart, type))
         {
-            return ProcessSymbol(counterpart);
+            return Qualify(counterpart);
         }
 
         if (methodLocation is not null && !kept.Contains(type, SymbolEqualityComparer.Default))

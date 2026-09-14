@@ -41,7 +41,7 @@ public sealed class CopyGenerator : IIncrementalGenerator
         }
 
         var copy = new RenameRewriter(target.Context.SemanticModel, target.Syntax).Visit(root);
-        return ClonedMethod.Create(location, target.Syntax, copy, disableNullable: false, ImmutableArray<ReportedDiagnostic>.Empty);
+        return ClonedMethod.Create(location, target.Syntax, copy, nullableDisabled: false, ImmutableArray<ReportedDiagnostic>.Empty);
     }
 }
 

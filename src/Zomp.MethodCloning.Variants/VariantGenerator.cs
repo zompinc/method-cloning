@@ -96,14 +96,14 @@ namespace Zomp.MethodCloning
 
         // Each variant keeps the nullable context the method was written in, so that a method
         // written without annotations does not gain them in its variants.
-        var disableNullable = !context.SemanticModel.GetNullableContext(syntax.SpanStart).AnnotationsEnabled();
+        var nullableDisabled = !context.SemanticModel.GetNullableContext(syntax.SpanStart).AnnotationsEnabled();
 
         var name = syntax.Identifier.ValueText;
 
         if (name.IndexOf(original, StringComparison.Ordinal) < 0)
         {
             var diagnostic = ReportedDiagnostic.Create(VariantDiagnostics.NameWithoutOriginal, syntax.Identifier.GetLocation(), name);
-            return ImmutableArray.Create(ClonedMethod.Create(location, syntax, syntax, disableNullable, ImmutableArray.Create(diagnostic)));
+            return ImmutableArray.Create(ClonedMethod.Create(location, syntax, syntax, nullableDisabled, ImmutableArray.Create(diagnostic)));
         }
 
         var clones = ImmutableArray.CreateBuilder<ClonedMethod>();
@@ -128,7 +128,7 @@ namespace Zomp.MethodCloning
             // Each file is named after the method and the variant. The variant's name alone would
             // not do: methods written for different variants, such as GetBmpMetadata and an
             // overload GetGifMetadata, can both produce a GetPngMetadata.
-            clones.Add(ClonedMethod.Create(variantLocation, syntax, rewritten, disableNullable, rewriter.Diagnostics, $"{name}.{to}"));
+            clones.Add(ClonedMethod.Create(variantLocation, syntax, rewritten, nullableDisabled, rewriter.Diagnostics, $"{name}.{to}"));
         }
 
         return clones.ToImmutable();

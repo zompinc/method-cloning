@@ -13,17 +13,17 @@ namespace Zomp.MethodCloning;
 /// A method rewritten by a transformation, ready to be emitted into a file of its own.
 /// </summary>
 /// <param name="Location">Where the original method sits.</param>
-/// <param name="MethodName">Name of the original method.</param>
+/// <param name="FileName">Stem of the name of the file the method is emitted to, by default the name of the original method.</param>
 /// <param name="Implementation">The rewritten method.</param>
-/// <param name="DisableNullable">True to leave the <c>#nullable enable</c> directive out of the file.</param>
+/// <param name="NullableDisabled">True to leave the <c>#nullable enable</c> directive out of the file.</param>
 /// <param name="Diagnostics">Diagnostics the transformation reported.</param>
 /// <param name="HasErrors">True if there are errors in <see cref="Diagnostics"/>, in which case nothing is emitted.</param>
 /// <param name="Signature">Signature the rewritten method will be emitted with, used to detect colliding overloads.</param>
 internal sealed record ClonedMethod(
     MethodLocation Location,
-    string MethodName,
+    string FileName,
     string Implementation,
-    bool DisableNullable,
+    bool NullableDisabled,
     EquatableArray<ReportedDiagnostic> Diagnostics,
     bool HasErrors,
     MethodSignature? Signature)
@@ -34,21 +34,21 @@ internal sealed record ClonedMethod(
     /// <param name="location">Where the original method sits.</param>
     /// <param name="original">Declaration of the original method.</param>
     /// <param name="rewritten">Result of rewriting the method, or the extension block which holds it.</param>
-    /// <param name="disableNullable">True to leave the <c>#nullable enable</c> directive out of the file.</param>
+    /// <param name="nullableDisabled">True to leave the <c>#nullable enable</c> directive out of the file.</param>
     /// <param name="diagnostics">Diagnostics the transformation reported.</param>
-    /// <param name="name">
-    /// Name the file is emitted under. A transformation which clones a method more than once
-    /// gives each copy its own, since files named after the same method would collide. Defaults to
-    /// the name of the original method.
+    /// <param name="fileName">
+    /// Stem of the name of the file the method is emitted to. A transformation which clones a
+    /// method more than once gives each copy its own, since files named after the same method
+    /// would collide. Defaults to the name of the original method.
     /// </param>
     /// <returns>A new <see cref="ClonedMethod"/>.</returns>
     public static ClonedMethod Create(
         MethodLocation location,
         MethodDeclarationSyntax original,
         SyntaxNode rewritten,
-        bool disableNullable,
+        bool nullableDisabled,
         ImmutableArray<ReportedDiagnostic> diagnostics,
-        string? name = null)
+        string? fileName = null)
     {
         var hasErrors = false;
         foreach (var diagnostic in diagnostics)
@@ -58,9 +58,9 @@ internal sealed record ClonedMethod(
 
         return new(
             location,
-            name ?? original.Identifier.ValueText,
+            fileName ?? original.Identifier.ValueText,
             rewritten.ToFullString(),
-            disableNullable,
+            nullableDisabled,
             diagnostics,
             hasErrors,
             MethodSignature.Create(rewritten, location, original));

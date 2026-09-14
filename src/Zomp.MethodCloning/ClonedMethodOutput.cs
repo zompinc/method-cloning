@@ -74,9 +74,9 @@ internal static class ClonedMethodOutput
     {
         var location = m.Location;
 
-        var scope = location.Scope + (location.IsCSharp14Extension ? ".ext" : string.Empty);
+        var scope = location.Scope + (location.IsInExtensionBlock ? ".ext" : string.Empty);
 
-        var method = m.MethodName + (location.Index == 1 ? string.Empty : "_" + location.Index);
+        var method = m.FileName + (location.OverloadIndex == 1 ? string.Empty : "_" + location.OverloadIndex);
 
         var sourcePath = BuildFileName(scope, method);
 

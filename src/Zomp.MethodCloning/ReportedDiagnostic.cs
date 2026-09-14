@@ -5,19 +5,22 @@
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
+using System.Collections.Immutable;
 
 namespace Zomp.MethodCloning;
 
 /// <summary>
-/// Basic diagnostic description for reporting diagnostic inside the incremental pipeline.
+/// A diagnostic in a form the incremental pipeline can compare and cache. A
+/// <see cref="Diagnostic"/> holds a <see cref="Location"/>, which keeps the syntax tree alive and
+/// compares by reference.
 /// </summary>
-/// <param name="Descriptor">Diagnostic descriptor.</param>
-/// <param name="FilePath">File path.</param>
-/// <param name="TextSpan">Text span.</param>
-/// <param name="LineSpan">Line span.</param>
-/// <param name="Trivia">Trivia.</param>
+/// <param name="Descriptor">Descriptor of the diagnostic.</param>
+/// <param name="FilePath">Path of the file the diagnostic is reported in.</param>
+/// <param name="TextSpan">Span the diagnostic is reported at.</param>
+/// <param name="LineSpan">Lines the diagnostic is reported at.</param>
+/// <param name="MessageArguments">Arguments of the descriptor's message format.</param>
 /// <see href="https://github.com/dotnet/roslyn/issues/62269#issuecomment-1170760367" />
-internal sealed record ReportedDiagnostic(DiagnosticDescriptor Descriptor, string FilePath, TextSpan TextSpan, LinePositionSpan LineSpan, string Trivia)
+internal sealed record ReportedDiagnostic(DiagnosticDescriptor Descriptor, string FilePath, TextSpan TextSpan, LinePositionSpan LineSpan, EquatableArray<string> MessageArguments)
 {
     /// <summary>
     /// Implicitly converts <see cref="ReportedDiagnostic"/> to <see cref="Diagnostic"/>.
@@ -27,17 +30,15 @@ internal sealed record ReportedDiagnostic(DiagnosticDescriptor Descriptor, strin
         => Diagnostic.Create(
             descriptor: diagnostic.Descriptor,
             location: Location.Create(diagnostic.FilePath, diagnostic.TextSpan, diagnostic.LineSpan),
-            messageArgs: [diagnostic.Trivia]);
+            messageArgs: [.. diagnostic.MessageArguments]);
 
     /// <summary>
     /// Creates a new <see cref="ReportedDiagnostic"/> from <see cref="DiagnosticDescriptor"/> and <see cref="Location"/>.
     /// </summary>
-    /// <param name="descriptor">Descriptor.</param>
-    /// <param name="location">Location.</param>
-    /// <param name="trivia">Trivia.</param>
+    /// <param name="descriptor">Descriptor of the diagnostic.</param>
+    /// <param name="location">Where the diagnostic is reported.</param>
+    /// <param name="messageArguments">Arguments of the descriptor's message format.</param>
     /// <returns>A new <see cref="ReportedDiagnostic"/>.</returns>
-    public static ReportedDiagnostic Create(DiagnosticDescriptor descriptor, Location location, string trivia)
-    {
-        return new(descriptor, location.SourceTree?.FilePath ?? string.Empty, location.SourceSpan, location.GetLineSpan().Span, trivia);
-    }
+    public static ReportedDiagnostic Create(DiagnosticDescriptor descriptor, Location location, params string[] messageArguments)
+        => new(descriptor, location.SourceTree?.FilePath ?? string.Empty, location.SourceSpan, location.GetLineSpan().Span, ImmutableArray.Create(messageArguments));
 }

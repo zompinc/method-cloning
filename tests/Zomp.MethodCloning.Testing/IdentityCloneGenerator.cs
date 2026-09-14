@@ -55,9 +55,9 @@ public sealed class IdentityCloneGenerator : IIncrementalGenerator
             return null;
         }
 
-        var disableNullable = !context.SemanticModel.GetNullableContext(target.Syntax.SpanStart).AnnotationsEnabled();
+        var nullableDisabled = !context.SemanticModel.GetNullableContext(target.Syntax.SpanStart).AnnotationsEnabled();
         var clone = new IdentityRewriter(context.SemanticModel, target.Syntax).Visit(root);
 
-        return ClonedMethod.Create(location, target.Syntax, clone, disableNullable, []);
+        return ClonedMethod.Create(location, target.Syntax, clone, nullableDisabled, []);
     }
 }

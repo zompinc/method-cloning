@@ -50,7 +50,7 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
 
         // Handles nameof(Type)
         return GetSymbol(node.Expression) is ITypeSymbol typeSymbol && !TypeAlreadyQualified(typeSymbol)
-            ? @base.WithExpression(ProcessSymbol(typeSymbol)).WithTriviaFrom(@base)
+            ? @base.WithExpression(Qualify(typeSymbol)).WithTriviaFrom(@base)
             : @base;
     }
 
@@ -60,7 +60,7 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
         var @base = (ArrayTypeSyntax)base.VisitArrayType(node)!;
         var elementType = TypeAlreadyQualified(node.ElementType)
             ? @base.ElementType
-            : ProcessType(@base.ElementType);
+            : Qualify(@base.ElementType);
         return @base.WithElementType(elementType).WithTriviaFrom(@base);
     }
 
@@ -74,7 +74,7 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
             return @base;
         }
 
-        var retval = @base.WithName(ProcessSymbol(ms.ContainingType));
+        var retval = @base.WithName(Qualify(ms.ContainingType));
         return retval;
     }
 
@@ -87,12 +87,12 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
         {
             if (GetSymbol(node.Left) is IFieldSymbol leftSymbol)
             {
-                @base = @base.WithLeft(ProcessSymbol(leftSymbol).WithTriviaFrom(node.Left));
+                @base = @base.WithLeft(Qualify(leftSymbol).WithTriviaFrom(node.Left));
             }
 
             if (GetSymbol(node.Right) is ISymbol symbol)
             {
-                @base = @base.WithRight(ProcessSymbol(symbol).WithTriviaFrom(node.Right));
+                @base = @base.WithRight(Qualify(symbol).WithTriviaFrom(node.Right));
             }
 
             return @base.WithTriviaFrom(@base);
@@ -105,14 +105,14 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
     public override SyntaxNode? VisitCastExpression(CastExpressionSyntax node)
     {
         var @base = (CastExpressionSyntax)base.VisitCastExpression(node)!;
-        return TypeAlreadyQualified(node.Type) ? @base : @base.WithType(ProcessType(node.Type)).WithTriviaFrom(@base);
+        return TypeAlreadyQualified(node.Type) ? @base : @base.WithType(Qualify(node.Type)).WithTriviaFrom(@base);
     }
 
     /// <inheritdoc/>
     public override SyntaxNode? VisitCatchDeclaration(CatchDeclarationSyntax node)
     {
         var @base = (CatchDeclarationSyntax)base.VisitCatchDeclaration(node)!;
-        return @base.WithType(ProcessType(node.Type)).WithTriviaFrom(@base);
+        return @base.WithType(Qualify(node.Type)).WithTriviaFrom(@base);
     }
 
     /// <inheritdoc/>
@@ -123,7 +123,7 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
         {
             LiteralExpressionSyntax or MemberAccessExpressionSyntax => @base,
             _ => SemanticModel.GetTypeInfo(node.Expression).Type is { } type
-                ? @base.WithExpression(ProcessSymbol(type).WithTriviaFrom(@base))
+                ? @base.WithExpression(Qualify(type).WithTriviaFrom(@base))
                 : @base,
         };
     }
@@ -132,21 +132,21 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
     public override SyntaxNode? VisitDeclarationExpression(DeclarationExpressionSyntax node)
     {
         var @base = (DeclarationExpressionSyntax)base.VisitDeclarationExpression(node)!;
-        return TypeAlreadyQualified(node.Type) ? @base : @base.WithType(ProcessType(node.Type)).WithTriviaFrom(@base);
+        return TypeAlreadyQualified(node.Type) ? @base : @base.WithType(Qualify(node.Type)).WithTriviaFrom(@base);
     }
 
     /// <inheritdoc/>
     public override SyntaxNode? VisitDeclarationPattern(DeclarationPatternSyntax node)
     {
         var @base = (DeclarationPatternSyntax)base.VisitDeclarationPattern(node)!;
-        return TypeAlreadyQualified(node.Type) ? @base : @base.WithType(ProcessType(node.Type)).WithTriviaFrom(@base);
+        return TypeAlreadyQualified(node.Type) ? @base : @base.WithType(Qualify(node.Type)).WithTriviaFrom(@base);
     }
 
     /// <inheritdoc/>
     public override SyntaxNode? VisitForEachStatement(ForEachStatementSyntax node)
     {
         var @base = (ForEachStatementSyntax)base.VisitForEachStatement(node)!;
-        return TypeAlreadyQualified(node.Type) ? @base : @base.WithType(ProcessType(node.Type)).WithTriviaFrom(@base);
+        return TypeAlreadyQualified(node.Type) ? @base : @base.WithType(Qualify(node.Type)).WithTriviaFrom(@base);
     }
 
     /// <inheritdoc/>
@@ -189,7 +189,7 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
 
         if (node.Parent is TypeArgumentListSyntax)
         {
-            return ProcessType(node);
+            return Qualify(node);
         }
 
         return @base;
@@ -221,7 +221,7 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
         // Rewrite static invocation (eg. File.ReadAllText)
         if (GetSymbol(node.Expression) is ITypeSymbol && node.Expression is TypeSyntax type)
         {
-            var newType = ProcessType(type);
+            var newType = Qualify(type);
             if (newType != type)
             {
                 @base = @base.WithExpression(newType);
@@ -234,7 +234,7 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
         else if (node.Expression is MemberAccessExpressionSyntax
             && GetSymbol(node.Expression) is INamedTypeSymbol { IsGenericType: false } namedType)
         {
-            @base = @base.WithExpression(ProcessSymbol(namedType).WithTriviaFrom(@base.Expression));
+            @base = @base.WithExpression(Qualify(namedType).WithTriviaFrom(@base.Expression));
         }
 
         return @base;
@@ -249,7 +249,7 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
     {
         var @base = (NullableTypeSyntax)base.VisitNullableType(node)!;
 
-        return TypeAlreadyQualified(node.ElementType) ? @base : @base.WithElementType(ProcessType(@base.ElementType)).WithTriviaFrom(@base);
+        return TypeAlreadyQualified(node.ElementType) ? @base : @base.WithElementType(Qualify(@base.ElementType)).WithTriviaFrom(@base);
     }
 
     /// <inheritdoc/>
@@ -263,7 +263,7 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
             return @base;
         }
 
-        var newType = ProcessSymbol(t);
+        var newType = Qualify(t);
         return newType == node.Type ? @base : @base.WithType(newType);
     }
 
@@ -273,7 +273,7 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
         var @base = (ParameterSyntax)base.VisitParameter(node)!;
 
         return node.Type is null || TypeAlreadyQualified(node.Type) ? @base
-            : @base.WithType(ProcessType(node.Type)).WithTriviaFrom(@base);
+            : @base.WithType(Qualify(node.Type)).WithTriviaFrom(@base);
     }
 
     /// <inheritdoc/>
@@ -283,7 +283,7 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
 
         // The generic name on the right is fully qualified by its own visitor, so it replaces the
         // whole name, and takes over the indentation which led the left side.
-        return @base.Right is GenericNameSyntax ? @base.Right.WithTriviaFrom(@base) : (SyntaxNode)ProcessType(node);
+        return @base.Right is GenericNameSyntax ? @base.Right.WithTriviaFrom(@base) : (SyntaxNode)Qualify(node);
     }
 
     /// <inheritdoc/>
@@ -294,7 +294,7 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
         var newTuples = new List<TupleElementSyntax>();
         foreach (var t in node.Elements.Zip(@base.Elements, (original, visited) => (original, visited)))
         {
-            var newType = TypeAlreadyQualified(t.original.Type) ? t.visited.Type : ProcessType(t.original.Type);
+            var newType = TypeAlreadyQualified(t.original.Type) ? t.visited.Type : Qualify(t.original.Type);
             newTuples.Add(TupleElement(newType, t.original.Identifier));
         }
 
@@ -305,7 +305,7 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
     public override SyntaxNode? VisitTypeConstraint(TypeConstraintSyntax node)
     {
         var @base = (TypeConstraintSyntax)base.VisitTypeConstraint(node)!;
-        var newType = ProcessType(@base.Type);
+        var newType = Qualify(@base.Type);
         return newType == @base.Type ? @base : @base.WithType(newType).WithTriviaFrom(@base);
     }
 
@@ -313,7 +313,7 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
     public override SyntaxNode? VisitTypeOfExpression(TypeOfExpressionSyntax node)
     {
         var @base = (TypeOfExpressionSyntax)base.VisitTypeOfExpression(node)!;
-        return TypeAlreadyQualified(node.Type) ? @base : @base.WithType(ProcessType(node.Type)).WithTriviaFrom(@base);
+        return TypeAlreadyQualified(node.Type) ? @base : @base.WithType(Qualify(node.Type)).WithTriviaFrom(@base);
     }
 
     /// <inheritdoc/>
@@ -330,7 +330,7 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
             && newTypeString == typeString))
         {
             // not replaced
-            newType = ProcessType(type);
+            newType = Qualify(type);
 
             if (newType == type)
             {
@@ -394,7 +394,7 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
     /// </summary>
     /// <param name="symbol">The type, or any other symbol, which is named as it is.</param>
     /// <returns>The name.</returns>
-    protected string MakeType(ISymbol symbol)
+    protected string FullyQualifiedName(ISymbol symbol)
         => symbol switch
         {
             INamedTypeSymbol nts => MapTypeName(nts) ?? symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
@@ -406,11 +406,11 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
     /// </summary>
     /// <param name="typeSymbol">The symbol.</param>
     /// <returns>The name.</returns>
-    protected SimpleNameSyntax ProcessSymbol(ISymbol typeSymbol) => MapSymbol(typeSymbol) ?? typeSymbol switch
+    protected SimpleNameSyntax Qualify(ISymbol typeSymbol) => MapSymbol(typeSymbol) ?? typeSymbol switch
     {
-        INamedTypeSymbol nts => IdentifierName(MakeType(nts)),
-        IArrayTypeSymbol ats => IdentifierName(MakeType(ats.ElementType) + $"[{new string(',', ats.Rank - 1)}]"),
-        IFieldSymbol fs => IdentifierName(MakeType(fs.Type) + '.' + fs.Name),
+        INamedTypeSymbol nts => IdentifierName(FullyQualifiedName(nts)),
+        IArrayTypeSymbol ats => IdentifierName(FullyQualifiedName(ats.ElementType) + $"[{new string(',', ats.Rank - 1)}]"),
+        IFieldSymbol fs => IdentifierName(FullyQualifiedName(fs.Type) + '.' + fs.Name),
         _ => IdentifierName(typeSymbol.Name),
     };
 
@@ -419,10 +419,10 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
     /// </summary>
     /// <param name="typeSyntax">The type.</param>
     /// <returns>The qualified type, or the type itself if it needs nothing.</returns>
-    protected TypeSyntax ProcessType(TypeSyntax typeSyntax) => typeSyntax switch
+    protected TypeSyntax Qualify(TypeSyntax typeSyntax) => typeSyntax switch
     {
         IdentifierNameSyntax { Identifier.ValueText: "var" } => typeSyntax,
-        IdentifierNameSyntax or QualifiedNameSyntax => ProcessSyntaxUsingSymbol(typeSyntax),
+        IdentifierNameSyntax or QualifiedNameSyntax => QualifyUsingSymbol(typeSyntax),
         _ => typeSyntax,
     };
 
@@ -453,9 +453,9 @@ internal abstract class CloningRewriter(SemanticModel semanticModel, MethodDecla
         => type is INamedTypeSymbol namedType
             && namedType is { IsGenericType: true };
 
-    private TypeSyntax ProcessSyntaxUsingSymbol(TypeSyntax typeSyntax)
+    private TypeSyntax QualifyUsingSymbol(TypeSyntax typeSyntax)
     {
         var typeSymbol = SemanticModel.GetTypeInfo(typeSyntax).Type;
-        return typeSymbol is null ? typeSyntax : ProcessSymbol(typeSymbol).WithTriviaFrom(typeSyntax);
+        return typeSymbol is null ? typeSyntax : Qualify(typeSymbol).WithTriviaFrom(typeSyntax);
     }
 }
