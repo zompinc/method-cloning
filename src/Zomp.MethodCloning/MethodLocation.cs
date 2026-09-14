@@ -17,26 +17,26 @@ namespace Zomp.MethodCloning;
 /// Everything around a method which a copy of it needs in order to compile in a file of its own:
 /// the namespaces and types it is nested in, and the using directives in scope where it was written.
 /// </summary>
-/// <param name="Index">Position of the method among the members of its type which share its name, starting at 1.</param>
+/// <param name="OverloadIndex">Position of the method among the members of its type which share its name, starting at 1.</param>
 /// <param name="Namespaces">Namespaces the method is under, outermost first.</param>
 /// <param name="OuterUsings">Using directives the source file declares outside its namespace.</param>
 /// <param name="InnerUsings">Using directives the source file declares inside its namespace.</param>
 /// <param name="IsNamespaceFileScoped">True if the namespace is file scoped.</param>
-/// <param name="IsCSharp14Extension">True if the method is a member of a C# 14 extension block.</param>
-/// <param name="Parents">Types the method is nested in, outermost first.</param>
+/// <param name="IsInExtensionBlock">True if the method is a member of a C# 14 extension block.</param>
+/// <param name="ContainingTypes">Types the method is nested in, outermost first.</param>
 internal sealed record MethodLocation(
-    int Index,
+    int OverloadIndex,
     EquatableArray<string> Namespaces,
     EquatableArray<string> OuterUsings,
     EquatableArray<string> InnerUsings,
     bool IsNamespaceFileScoped,
-    bool IsCSharp14Extension,
-    EquatableArray<MethodParentDeclaration> Parents)
+    bool IsInExtensionBlock,
+    EquatableArray<ContainingType> ContainingTypes)
 {
     /// <summary>
     /// Gets the namespaces and types the method is nested in, joined with dots.
     /// </summary>
-    public string Scope => string.Join(".", Namespaces.Concat(Parents.Select(static p => p.ScopeName)));
+    public string Scope => string.Join(".", Namespaces.Concat(ContainingTypes.Select(static p => p.ScopeName)));
 
     /// <summary>
     /// Locates a method.
@@ -55,7 +55,7 @@ internal sealed record MethodLocation(
         location = null;
         root = null;
 
-        var parents = ImmutableArray.CreateBuilder<MethodParentDeclaration>();
+        var parents = ImmutableArray.CreateBuilder<ContainingType>();
         SyntaxNode? node = method;
 #if ROSLYN_5_0_OR_GREATER
         ExtensionBlockDeclarationSyntax? extensionParent = null;
@@ -71,12 +71,12 @@ internal sealed record MethodLocation(
             }
 #endif
 
-            MethodParentDeclaration? mpd = node switch
+            ContainingType? mpd = node switch
             {
-                ClassDeclarationSyntax o => new(MethodParent.Class, o.Identifier, o.Modifiers, o.TypeParameterList),
-                StructDeclarationSyntax o => new(MethodParent.Struct, o.Identifier, o.Modifiers, o.TypeParameterList),
-                RecordDeclarationSyntax o => new(MethodParent.Record, o.Identifier, o.Modifiers, o.TypeParameterList, o.ClassOrStructKeyword),
-                InterfaceDeclarationSyntax o => new(MethodParent.Interface, o.Identifier, o.Modifiers, o.TypeParameterList),
+                ClassDeclarationSyntax o => new(ContainingTypeKind.Class, o.Identifier, o.Modifiers, o.TypeParameterList),
+                StructDeclarationSyntax o => new(ContainingTypeKind.Struct, o.Identifier, o.Modifiers, o.TypeParameterList),
+                RecordDeclarationSyntax o => new(ContainingTypeKind.Record, o.Identifier, o.Modifiers, o.TypeParameterList, o.ClassOrStructKeyword),
+                InterfaceDeclarationSyntax o => new(ContainingTypeKind.Interface, o.Identifier, o.Modifiers, o.TypeParameterList),
                 _ => null,
             };
 
@@ -131,10 +131,10 @@ internal sealed record MethodLocation(
         }
 
 #if ROSLYN_5_0_OR_GREATER
-        var isCSharp14Extension = extensionParent is not null;
+        var isInExtensionBlock = extensionParent is not null;
         root = extensionParent ?? (SyntaxNode)method;
 #else
-        var isCSharp14Extension = false;
+        var isInExtensionBlock = false;
         root = method;
 #endif
 
@@ -144,7 +144,7 @@ internal sealed record MethodLocation(
             outerUsings.ToImmutable(),
             innerUsings.ToImmutable(),
             isNamespaceFileScoped,
-            isCSharp14Extension,
+            isInExtensionBlock,
             parents.ToImmutable());
 
         return true;

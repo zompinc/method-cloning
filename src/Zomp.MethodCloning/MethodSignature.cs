@@ -97,5 +97,5 @@ internal sealed record MethodSignature(string Key, string FilePath, TextSpan Tex
     /// <param name="descriptor">Descriptor of the diagnostic.</param>
     /// <returns>A new <see cref="ReportedDiagnostic"/>.</returns>
     public ReportedDiagnostic ToDiagnostic(DiagnosticDescriptor descriptor)
-        => new(descriptor, FilePath, TextSpan, LineSpan, Key);
+        => new(descriptor, FilePath, TextSpan, LineSpan, ImmutableArray.Create(Key));
 }

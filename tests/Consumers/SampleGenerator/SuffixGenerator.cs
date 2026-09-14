@@ -35,6 +35,6 @@ public sealed class SuffixGenerator : IIncrementalGenerator
 
         var copy = new SuffixRewriter(target.Context.SemanticModel, target.Syntax).Visit(root);
 
-        return ClonedMethod.Create(location, target.Syntax, copy, disableNullable: false, ImmutableArray<ReportedDiagnostic>.Empty);
+        return ClonedMethod.Create(location, target.Syntax, copy, nullableDisabled: false, ImmutableArray<ReportedDiagnostic>.Empty);
     }
 }

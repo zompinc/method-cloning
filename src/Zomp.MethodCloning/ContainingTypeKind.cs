@@ -5,7 +5,10 @@
 
 namespace Zomp.MethodCloning;
 
-internal enum MethodParent
+/// <summary>
+/// The kind of a type a method is nested in.
+/// </summary>
+internal enum ContainingTypeKind
 {
     Class,
     Struct,
