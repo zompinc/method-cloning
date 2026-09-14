@@ -59,6 +59,8 @@ The packages land in `artifacts/package/release`. The tests compile the core fro
 
 CI (`.github/workflows/build.yml`) builds and tests on Ubuntu and Windows, packs, and builds the consumers. Running the workflow by hand on `master` signs the packages, pushes them to nuget.org and publishes a GitHub release.
 
+nuget.org rejects a signed package unless the certificate it was signed with is registered on the account (Account settings > Certificates), and a version it rejects cannot be pushed again: the fix is to register the certificate and publish the next version. Trusted Signing issues a new certificate every few days, so each new one has to be registered before the first release signed with it. The certificate is in the `.signature.p7s` inside each signed package, which the `packages-signed` artifact of the run holds.
+
 ## Conventions
 
 - Default branch `master`; topic branches and PRs for anything reviewable.
